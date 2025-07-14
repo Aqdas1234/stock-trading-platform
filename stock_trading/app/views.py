@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 #from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -7,6 +8,8 @@ from .serializers import RegisterSerializer,StockSerializer, AccountSerializer, 
 from rest_framework.views import APIView
 from .models import Stock, Account, Transaction, Holding
 from rest_framework.generics import RetrieveAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -34,33 +37,40 @@ class get_users(generics.RetrieveAPIView):
         serializer = self.get_serializer(users, many=True)
         return Response(serializer.data)
 
-class AddStockView(generics.CreateAPIView):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
 class StockListView(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        #filter handle? 
-
-        stocks = self.get_queryset()
-        serializer = self.get_serializer(stocks, many=True)
-        return Response(serializer.data)
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['symbol', 'name']
 
 
 
+class StockDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Stock.objects.all()
+    serializer_class = StockSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class AccountDetailView(generics.RetrieveAPIView):
+
+
+class AccountRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AccountSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return Account.objects.get(user=self.request.user)
+        return get_object_or_404(Account, user=self.request.user)
 
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)           
+
+
+class AccountCreateView(generics.CreateAPIView):
+    serializer_class = AccountSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
 
 class TransactionListCreateView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer

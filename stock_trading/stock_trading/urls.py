@@ -22,7 +22,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Your Project API",
+      title="Stock Trading API",
       default_version='v1',
       description="API documentation using Swagger UI",
       terms_of_service="https://www.example.com/terms/",
