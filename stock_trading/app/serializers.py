@@ -64,21 +64,23 @@ class TransactionSerializer(serializers.ModelSerializer):
         quantity = validated_data['quantity']
         transaction_type = validated_data['transaction_type']
 
+        transaction = Transaction.objects.create(
+        user=user,
+        stock=validated_data['stock'],
+        transaction_type=transaction_type,
+        quantity=quantity,
+        price_per_stock=validated_data['price_per_stock'],
+        status='pending'
+        )
         process_transaction.delay({
             'user_id': user.id,
             'stock_symbol': stock_symbol,
             'transaction_type': transaction_type,
-            'quantity': quantity
+            'quantity': quantity,
+            'transaction_id': transaction.id
         })
 
-        return Transaction.objects.create(
-            user=user,
-            stock=validated_data['stock'],
-            transaction_type=transaction_type,
-            quantity=quantity,
-            price_per_stock=validated_data['price_per_stock'],
-            status='pending'
-        )
+        return transaction
 
 
 class HoldingSerializer(serializers.ModelSerializer):
