@@ -72,9 +72,14 @@ class AccountCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
     
 
+
 class TransactionListCreateView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['transaction_type', 'stock__symbol','status']
+    search_fields = ['stock__symbol']
+    ordering_fields = ['timestamp', 'price_per_stock', 'quantity']
 
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user)

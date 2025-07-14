@@ -34,7 +34,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['id', 'user', 'stock_symbol', 'transaction_type', 'quantity', 'price_per_stock', 'timestamp']
+        fields = ['id', 'user', 'stock_symbol', 'transaction_type','status', 'quantity', 'price_per_stock', 'timestamp']
         read_only_fields = ['price_per_stock', 'timestamp']
 
     def validate(self, data):

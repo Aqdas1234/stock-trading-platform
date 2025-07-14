@@ -23,10 +23,16 @@ class Transaction(models.Model):
         ('BUY', 'Buy'),
         ('SELL', 'Sell'),
     )
+    TRASACTION_STATUS = (
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('FAILED', 'Failed'),
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPES)
     quantity = models.PositiveIntegerField()
+    status = models.CharField(max_length=20,choices=TRASACTION_STATUS,default='PENDING')  # PENDING, COMPLETED, FAILED
     price_per_stock = models.DecimalField(max_digits=10, decimal_places=2) 
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
