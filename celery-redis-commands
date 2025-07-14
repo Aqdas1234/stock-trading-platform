@@ -1,0 +1,6 @@
+celery -A stock_trading worker --loglevel=info
+
+celery -A stock_trading flower
+
+sudo systemctl start redis-server
+

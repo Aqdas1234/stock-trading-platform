@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Stock, Account, Transaction, Holding
+from .tasks import process_transaction
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -59,35 +60,25 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = validated_data['user']
-        stock = validated_data['stock']
+        stock_symbol = validated_data['stock'].symbol
         quantity = validated_data['quantity']
-        account = Account.objects.get(user=user)
-        price = validated_data['price_per_stock']
+        transaction_type = validated_data['transaction_type']
 
-        if validated_data['transaction_type'] == 'BUY':
-            # deduct balance
-            account.balance -= quantity * price
-            account.save()
+        process_transaction.delay({
+            'user_id': user.id,
+            'stock_symbol': stock_symbol,
+            'transaction_type': transaction_type,
+            'quantity': quantity
+        })
 
-            # update holding
-            holding, created = Holding.objects.get_or_create(user=user, stock=stock)
-            holding.quantity += quantity
-            holding.save()
-
-        elif validated_data['transaction_type'] == 'SELL':
-            # add balance
-            account.balance += quantity * price
-            account.save()
-
-            # update holding
-            holding = Holding.objects.get(user=user, stock=stock)
-            holding.quantity -= quantity
-            if holding.quantity == 0:
-                holding.delete()
-            else:
-                holding.save()
-
-        return Transaction.objects.create(**validated_data)
+        return Transaction.objects.create(
+            user=user,
+            stock=validated_data['stock'],
+            transaction_type=transaction_type,
+            quantity=quantity,
+            price_per_stock=validated_data['price_per_stock'],
+            status='pending'
+        )
 
 
 class HoldingSerializer(serializers.ModelSerializer):
