@@ -14,7 +14,8 @@ from pathlib import Path
 import os
 from decouple import Config
 from datetime import timedelta
-
+import sys
+TESTING = 'test' in sys.argv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -94,7 +95,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default='5432'),
-    
+        'TEST': {
+            'NAME': config('DB_USER'),  
+        },
     }
 }
 
@@ -178,3 +181,9 @@ SIMPLE_JWT = {
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+
+# In your test settings
+CELERY_TASK_ALWAYS_EAGER = True  # Run tasks immediately, don't use Celery worker
+CELERY_TASK_EAGER_PROPAGATES = True
+SWAGGER_USE_COMPAT_RENDERERS = False

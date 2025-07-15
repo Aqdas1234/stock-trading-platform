@@ -7,6 +7,8 @@ class Stock(models.Model):
     name = models.CharField(max_length=100)
     current_price = models.DecimalField(max_digits=10, decimal_places=2)
     last_updated = models.DateTimeField(auto_now=True)
+    class Meta: 
+        ordering = ['symbol']
     def __str__(self):
         return f"{self.symbol} - {self.name} (${self.current_price})"
 
@@ -15,6 +17,8 @@ class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)  
     created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['user']
     def __str__(self):
         return f"{self.user.username} - Balance: {self.balance}"
 
@@ -35,6 +39,9 @@ class Transaction(models.Model):
     status = models.CharField(max_length=20,choices=TRANSACTION_STATUS,default='PENDING')  # PENDING, COMPLETED, FAILED
     price_per_stock = models.DecimalField(max_digits=10, decimal_places=2) 
     timestamp = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-timestamp']
+        unique_together = ('user', 'stock', 'timestamp') 
     def __str__(self):
         return f"{self.user.username} - {self.transaction_type} {self.quantity} of {self.stock.symbol} at {self.price_per_stock}"
 
@@ -44,6 +51,7 @@ class Holding(models.Model):
     quantity = models.PositiveIntegerField()
 
     class Meta:
+        ordering = ['user', 'stock']
         unique_together = ('user', 'stock')  # Prevent duplicate holding
     def __str__(self):
         return f"{self.user.username} - {self.stock.symbol} ({self.quantity})"
