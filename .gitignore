@@ -25,3 +25,5 @@ media/
 # Ignore VS Code settings
 .vscode/
  
+celerybeat-schedule
+celerybeat.pid
