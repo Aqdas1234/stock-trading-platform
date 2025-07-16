@@ -37,7 +37,7 @@ class get_users(generics.RetrieveAPIView):
         serializer = self.get_serializer(users, many=True)
         return Response(serializer.data)
 
-class StockListView(generics.ListCreateAPIView):
+class StockListCreateView(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
     permission_classes = [permissions.IsAuthenticated]
