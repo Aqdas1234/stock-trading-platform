@@ -27,7 +27,7 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
-class get_users(generics.RetrieveAPIView):
+class GetUsers(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.IsAuthenticated]
