@@ -71,5 +71,7 @@ docker-compose up --build
 # To access the Django server
 http://localhost:8000
 
+#To access Flower 
+http://localhost:5555/
 
 ```

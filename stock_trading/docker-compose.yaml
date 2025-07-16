@@ -34,7 +34,7 @@ services:
   celery:
     build:
       context: .
-    command: celery -A stock_trading worker --loglevel=info
+    command: celery -A stock_trading worker --loglevel=info --hostname=celery@%h
     volumes:
       - .:/app
     depends_on:
@@ -46,7 +46,7 @@ services:
   celery-beat:
     build:
       context: .
-    command: celery -A stock_trading beat --loglevel=info
+    command: celery -A stock_trading beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app
     depends_on:
@@ -54,6 +54,17 @@ services:
       - db
     env_file:
       - .env
+
+  flower:
+    image: mher/flower
+    container_name: stock_trading_flower
+    
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:

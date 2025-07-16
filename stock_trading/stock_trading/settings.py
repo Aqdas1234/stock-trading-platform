@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist', 
     'app', 
     'django_filters',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -184,6 +185,6 @@ CELERY_TASK_SERIALIZER = 'json'
 
 
 # In your test settings
-CELERY_TASK_ALWAYS_EAGER = True  # Run tasks immediately, don't use Celery worker
+CELERY_TASK_ALWAYS_EAGER = False 
 CELERY_TASK_EAGER_PROPAGATES = True
 SWAGGER_USE_COMPAT_RENDERERS = False
