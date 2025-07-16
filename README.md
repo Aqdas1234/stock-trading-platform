@@ -8,6 +8,7 @@ It is built with modern backend architecture, containerization, caching, and asy
 
 ---
 
+
 ## 🏗️ System Architecture
 
 The platform is composed of the following components:
@@ -25,6 +26,21 @@ The platform is composed of the following components:
 ---
 
 ## ⚙️ Setup Instructions
+
+🛠️ Environment Variables Setup
+You need to create a .env file in the project where manage.py file exist with the following environment variable names:
+
+```bash
+SECRET_KEY=
+DEBUG=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
+DATABASE_URL=
+```
+🔐 Note: Fill in the actual values as per your local or production environment.
 
 ### 📌 Local Setup
 
