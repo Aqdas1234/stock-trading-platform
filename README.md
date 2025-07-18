@@ -47,13 +47,15 @@ DATABASE_URL=
 ```bash
 
 # Clone the repository
-git clone https://github.com/your-username/stock-trading-platform.git
-#create virtual enviroment
-python3 -m venv myenv
+git clone https://github.com/aqdas1234/stock-trading-platform.git
 cd stock_trading
 
-# Install  dependencies
-pip install -r requirements.txt
+
+# Create virtual environment (Poetry manages this internally)
+poetry install
+
+# Activate virtual environment (only needed for manual run)
+poetry shell
 
 # Apply migrations
 python manage.py makemigrations
@@ -65,13 +67,13 @@ python manage.py createsuperuser
 # Run the development server
 python manage.py runserver
 
-# Build and run all containers
-docker-compose up --build
+# Build and run all containers (make sure Dockerfile uses Poetry)
+docker compose up --build
 
 # To access the Django server
 http://localhost:8000
 
-#To access Flower 
+# To access Flower (Celery monitoring)
 http://localhost:5555/
 
 ```
