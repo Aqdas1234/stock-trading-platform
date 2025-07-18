@@ -4,7 +4,8 @@ services:
   web:
     build:
       context: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: poetry run python manage.py runserver 0.0.0.0:8000
+
     volumes:
       - .:/app
     ports:
@@ -34,7 +35,7 @@ services:
   celery:
     build:
       context: .
-    command: celery -A stock_trading worker --loglevel=info --hostname=celery@%h
+    command: poetry run celery -A stock_trading worker --loglevel=info --hostname=celery@%h
     volumes:
       - .:/app
     depends_on:
@@ -46,7 +47,7 @@ services:
   celery-beat:
     build:
       context: .
-    command: celery -A stock_trading beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: poetry run celery -A stock_trading beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app
     depends_on:
