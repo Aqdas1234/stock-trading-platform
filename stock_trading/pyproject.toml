@@ -56,7 +56,8 @@ dependencies = [
     "tzdata (==2025.2)",
     "uritemplate (==4.2.0)",
     "vine (==5.1.0)",
-    "wcwidth (==0.2.13)"
+    "wcwidth (==0.2.13)",
+    "django-cors-headers (>=4.7.0,<5.0.0)"
 ]
 
 

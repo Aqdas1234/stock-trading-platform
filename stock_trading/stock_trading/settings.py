@@ -34,7 +34,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost','127.0.0.1' ]
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost','127.0.0.1' ,'http://localhost:3000']
 
 
 # Application definition
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'app', 
     'django_filters',
     'django_celery_beat',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'stock_trading.urls'
@@ -188,3 +190,8 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_TASK_ALWAYS_EAGER = False 
 CELERY_TASK_EAGER_PROPAGATES = True
 SWAGGER_USE_COMPAT_RENDERERS = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+CORS_ALLOW_ALL_ORIGINS = True

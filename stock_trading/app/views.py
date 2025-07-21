@@ -91,3 +91,12 @@ class HoldingListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Holding.objects.filter(user=self.request.user)
+    
+class UserMeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            "username": request.user.username,
+            "email": request.user.email,
+        })
