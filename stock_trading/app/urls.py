@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.urls import path
-from .views import  RegisterView, LogoutView ,StockListCreateView, AccountCreateView,UserMeView, TransactionListCreateView, HoldingListView, GetUsers, StockDetailView,AccountRetrieveUpdateDestroyView
-from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from .views import  RegisterView, LogoutView ,CustomTokenObtainPairView,StockListCreateView, AccountCreateView,UserMeView, TransactionListCreateView, HoldingListView, GetUsers, StockDetailView,AccountRetrieveUpdateDestroyView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
-    path('login/', TokenObtainPairView.as_view(), name='login'),
+    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('users/', GetUsers.as_view(), name='get-users'),

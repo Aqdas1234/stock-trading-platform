@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.response import Response
-#from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from .serializers import RegisterSerializer,StockSerializer, AccountSerializer, TransactionSerializer, HoldingSerializer
 from rest_framework.views import APIView
 from .models import Stock, Account, Transaction, Holding
-from rest_framework.generics import RetrieveAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
@@ -100,3 +100,26 @@ class UserMeView(APIView):
             "username": request.user.username,
             "email": request.user.email,
         })
+    
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = TokenObtainPairSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except:
+            return Response({"detail": "Invalid credentials"}, status=401)
+        access = serializer.validated_data['access']
+        refresh = serializer.validated_data['refresh']
+        response = Response({"access": access})
+        response.set_cookie(
+            key='refresh_token',
+            value=str(refresh),
+            httponly=True,
+            secure=False, 
+            samesite='Lax', 
+            max_age=24 * 60 * 60, 
+        )
+
+        return response
