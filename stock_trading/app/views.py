@@ -5,11 +5,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer,StockSerializer, AccountSerializer, TransactionSerializer, HoldingSerializer
+from .serializers import RegisterSerializer,StockSerializer, AccountSerializer, TransactionSerializer, HoldingSerializer, StockPriceHistorySerializer
 from rest_framework.views import APIView
-from .models import Stock, Account, Transaction, Holding
+from .models import Stock, Account, Transaction, Holding, StockPriceHistory
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from django.utils import timezone
+from datetime import timedelta
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -41,15 +43,29 @@ class StockListCreateView(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['symbol', 'name']
-
+    filterset_fields = ['symbol', 'name']  
+    search_fields = ['symbol', 'name']    
+    ordering_fields = ['symbol', 'current_price', 'name']  
+    ordering = ['symbol'] 
 
 
 class StockDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        old_price = instance.current_price
+        updated_instance = serializer.save()
+
+        if old_price != updated_instance.current_price:
+            StockPriceHistory.objects.create(
+                stock=updated_instance,
+                price=updated_instance.current_price
+            )
 
 
 
@@ -123,3 +139,31 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         )
 
         return response
+
+
+class StockPriceHistoryView(generics.ListAPIView):
+    serializer_class = StockPriceHistorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        symbol = self.request.query_params.get('symbol')
+        hours = self.request.query_params.get('hours')
+        days = self.request.query_params.get('days')
+        months = self.request.query_params.get('months')
+
+        queryset = StockPriceHistory.objects.all()
+
+        # Filter by stock symbol (you could also allow filtering by ID)
+        if symbol:
+            queryset = queryset.filter(stock__symbol=symbol)
+
+        # Filter by time range
+        now = timezone.now()
+        if hours:
+            queryset = queryset.filter(timestamp__gte=now - timedelta(hours=int(hours)))
+        elif days:
+            queryset = queryset.filter(timestamp__gte=now - timedelta(days=int(days)))
+        elif months:
+            queryset = queryset.filter(timestamp__gte=now - timedelta(days=30 * int(months)))
+
+        return queryset

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Stock, Account, Transaction, Holding
+from .models import Stock, Account, Transaction, Holding, StockPriceHistory
 from .tasks import process_transaction
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -15,11 +15,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+
+class StockPriceHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockPriceHistory
+        fields = ['id', 'price', 'timestamp']
+
 class StockSerializer(serializers.ModelSerializer):
+    price_history = StockPriceHistorySerializer(many=True, read_only=True)
+    icon = serializers.ImageField(required=False)  # 👈 handle image uploads
+
     class Meta:
         model = Stock
-        fields = '__all__'
-
+        fields = ['id', 'symbol', 'name', 'icon', 'current_price', 'price_history']
 
 class AccountSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)

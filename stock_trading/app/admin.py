@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Stock, Account, Transaction, Holding
+from .models import Stock, Account, Transaction, Holding,StockPriceHistory
 
 # Register your models here.
 admin.site.register(Stock)
+admin.site.register(StockPriceHistory)
 admin.site.register(Account)
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'stock', 'transaction_type', 'status', 'timestamp')
