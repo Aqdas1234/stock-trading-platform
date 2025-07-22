@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Stock(models.Model):
@@ -28,6 +29,12 @@ class Account(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         ordering = ['user']
+    
+    def save(self, *args, **kwargs):
+        if self.balance < 0:
+            raise ValidationError("Balance cannot be negative.")
+        super().save(*args, **kwargs)
+        
     def __str__(self):
         return f"{self.user.username} - Balance: {self.balance}"
 

@@ -36,6 +36,15 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = ['id', 'user', 'balance', 'created_at']
 
+class AddBalanceSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Amount must be greater than 0.")
+        return value
+
+
 
 class TransactionSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())

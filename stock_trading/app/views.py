@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions,status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer,StockSerializer, AccountSerializer, TransactionSerializer, HoldingSerializer, StockPriceHistorySerializer
+from .serializers import (RegisterSerializer,StockSerializer, AccountSerializer, TransactionSerializer,
+                           HoldingSerializer, StockPriceHistorySerializer, AddBalanceSerializer)
 from rest_framework.views import APIView
 from .models import Stock, Account, Transaction, Holding, StockPriceHistory
 from django_filters.rest_framework import DjangoFilterBackend
@@ -86,7 +87,24 @@ class AccountCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-    
+
+class AddBalanceView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = AddBalanceSerializer(data=request.data)
+        if serializer.is_valid():
+            amount = serializer.validated_data['amount']
+            account = Account.objects.get(user=request.user)
+            account.balance += amount
+            account.save()
+
+            return Response({
+                'message': 'Balance added successfully.',
+                'new_balance': account.balance
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TransactionListCreateView(generics.ListCreateAPIView):
