@@ -31,6 +31,14 @@ services:
   redis:
     image: redis:6.0
     restart: always
+    volumes:
+      - redis_data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --save 900 1
+      --save 300 10
+      --save 60 10000
 
   celery:
     build:
@@ -69,3 +77,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

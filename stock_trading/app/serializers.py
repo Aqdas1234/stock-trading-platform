@@ -23,7 +23,7 @@ class StockPriceHistorySerializer(serializers.ModelSerializer):
 
 class StockSerializer(serializers.ModelSerializer):
     price_history = StockPriceHistorySerializer(many=True, read_only=True)
-    icon = serializers.ImageField(required=False)  # 👈 handle image uploads
+    icon = serializers.ImageField(required=False)  
 
     class Meta:
         model = Stock
@@ -37,11 +37,11 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'balance', 'created_at']
 
 class AddBalanceSerializer(serializers.Serializer):
-    amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    balance = serializers.DecimalField(max_digits=12, decimal_places=2)
 
-    def validate_amount(self, value):
+    def validate_balance(self, value):
         if value <= 0:
-            raise serializers.ValidationError("Amount must be greater than 0.")
+            raise serializers.ValidationError("Balance must be greater than 0.")
         return value
 
 

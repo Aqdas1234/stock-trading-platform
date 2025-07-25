@@ -3,15 +3,15 @@ from django.urls import path
 from .views import  (RegisterView, LogoutView ,CustomTokenObtainPairView,StockListCreateView, 
                     AccountCreateView,UserMeView, TransactionListCreateView, HoldingListView, 
                     GetUsers, StockDetailView,AccountRetrieveUpdateDestroyView,StockPriceHistoryView,
-                    AddBalanceView)
-from rest_framework_simplejwt.views import TokenRefreshView
+                    AddBalanceView,CustomTokenRefreshView)
+
 
 
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', CustomTokenObtainPairView.as_view(), name='login'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('users/', GetUsers.as_view(), name='get-users'),
     path('stocks/', StockListCreateView.as_view(), name='stock-list'),

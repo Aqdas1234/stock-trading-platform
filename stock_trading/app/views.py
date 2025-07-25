@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions,status
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer,TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from .serializers import (RegisterSerializer,StockSerializer, AccountSerializer, TransactionSerializer,
@@ -13,6 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -44,12 +45,13 @@ class StockListCreateView(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
     
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['symbol', 'name']  
     search_fields = ['symbol', 'name']    
     ordering_fields = ['symbol', 'current_price', 'name']  
-    ordering = ['symbol'] 
+    ordering = ['id'] 
 
 
 class StockDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -94,9 +96,9 @@ class AddBalanceView(APIView):
     def post(self, request):
         serializer = AddBalanceSerializer(data=request.data)
         if serializer.is_valid():
-            amount = serializer.validated_data['amount']
+            balance = serializer.validated_data['balance']
             account = Account.objects.get(user=request.user)
-            account.balance += amount
+            account.balance += balance
             account.save()
 
             return Response({
@@ -153,7 +155,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             httponly=True,
             secure=False, 
             samesite='Lax', 
-            max_age=24 * 60 * 60, 
+            max_age=7*24 * 60 * 60, 
         )
 
         return response
@@ -185,3 +187,20 @@ class StockPriceHistoryView(generics.ListAPIView):
             queryset = queryset.filter(timestamp__gte=now - timedelta(days=30 * int(months)))
 
         return queryset
+
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if refresh_token is None:
+            return Response({'detail': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'detail': 'Token invalid or expired'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
