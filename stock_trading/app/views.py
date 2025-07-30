@@ -31,15 +31,11 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
-class GetUsers(generics.RetrieveAPIView):
+class GetUsers(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        users = self.get_queryset()
-        serializer = self.get_serializer(users, many=True)
-        return Response(serializer.data)
 
 class StockListCreateView(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
